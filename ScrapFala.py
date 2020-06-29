@@ -9,7 +9,7 @@ Created on Wed Jun 24 12:46:40 2020
 from flask import Flask
 app = Flask(__name__)
 
-@app.route('/')
+@app.route('/scrapBot')
 def hello_world():
     return 'Domo Arigato Mr Roboto'
 import requests
@@ -48,9 +48,9 @@ for key in IdsFala:
         except:
             print("No tiene nombre el producto")
         
-        data =  { 'Name': ProductName,
-                  'Url': URL,
-                  'ProductId':key
+        data =  { 'name': ProductName,
+                  'url': URL,
+                  'productId':key
                   }
         firebase.put('/prices/falabella/',key,data)
         print(key) 
@@ -96,9 +96,9 @@ for ProductId in IdsFala:
     except:
         print("No tiene valor de de descuento")
     timeStamp = int(time.time())
-    data =  { 'Date': timeStamp,
-              'ActualPrice': price_Normal,
-              'NoDiscPrice':price_disc,
-              'Discount': disct
+    data =  { 'date': timeStamp,
+              'actualPrice': price_Normal,
+              'noDiscPrice':price_disc,
+              'discount': disct
                   }
-    firebase.put('/prices/falabella/'+ProductId+'/Dates/',timeStamp,data)
+    firebase.put('/prices/falabella/'+ProductId+'/dates/',timeStamp,data)
