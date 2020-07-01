@@ -57,7 +57,7 @@ def runBot():
             ProductName = soup.find('div', class_='jsx-3686231685 product-name fa--product-name')
             print(results.prettify())
         except:
-            pass
+            print("No hay precio del producto")
 
 
         try:
@@ -68,7 +68,7 @@ def runBot():
         try:
             price_normal= results.find('span',class_='copy13 primary high jsx-185326735 normal')
         except:
-            pass
+            print("No hay precio del producto")
         try:
             price_normal = price_normal.text.strip()
             priceN = (re.findall('\d+', price_normal ))
