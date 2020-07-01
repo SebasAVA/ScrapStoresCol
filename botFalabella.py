@@ -5,11 +5,6 @@ Created on Mon Jun 29 13:51:29 2020
 @author: User
 """
 
-import requests
-import re
-from bs4 import BeautifulSoup
-from firebase import firebase
-import time
 
 
 def concatenate_list_data(list):
@@ -19,6 +14,12 @@ def concatenate_list_data(list):
     return result
 
 def runBot():
+    import requests
+    import re
+    from bs4 import BeautifulSoup
+    from firebase import firebase
+    import time
+
     fire = firebase.FirebaseApplication('https://pika-4af18.firebaseio.com/', None)
     IdsFala = fire.get('/store/falabella/', None)
     
@@ -30,9 +31,7 @@ def runBot():
             URL = 'https://www.falabella.com.co/falabella-co/product/'+key
             page = requests.get(URL)
             soup = BeautifulSoup(page.content, 'html.parser')
-        
             results = soup.find(id='testId-pod-prices-'+key)
-            print(results.prettify())
         
             
             ProductName = soup.find('div', class_='jsx-3686231685 product-name fa--product-name')
@@ -53,27 +52,34 @@ def runBot():
         URL = 'https://www.falabella.com.co/falabella-co/product/'+ProductId
         page = requests.get(URL)
         soup = BeautifulSoup(page.content, 'html.parser')
-    
-        results = soup.find(id='testId-pod-prices-'+ProductId)
-        print(results.prettify())
-    
-        
-        ProductName = soup.find('div', class_='jsx-3686231685 product-name fa--product-name')
+        try:
+            results = soup.find(id='testId-pod-prices-'+ProductId)
+            ProductName = soup.find('div', class_='jsx-3686231685 product-name fa--product-name')
+            print(results.prettify())
+        except:
+            pass
+
+
         try:
             ProductName=ProductName.text.strip()
         except:
             print("No tiene nombre el producto")
         
-        
-        price_normal= results.find('span',class_='copy13 primary high jsx-185326735 normal')
+        try:
+            price_normal= results.find('span',class_='copy13 primary high jsx-185326735 normal')
+        except:
+            pass
         try:
             price_normal = price_normal.text.strip()
             priceN = (re.findall('\d+', price_normal ))
             price_Normal = int(concatenate_list_data(priceN))
         except:
             print("No hay precio del producto")
-        
-        price_disc = results.find('span',class_='copy1 primary jsx-185326735 normal')
+            
+        try:    
+            price_disc = results.find('span',class_='copy1 primary jsx-185326735 normal')
+        except:
+            print("No tiene precio de descuento")
         try:
             price_disc = price_disc.text.strip()
             priceD = (re.findall('\d+', price_disc ))

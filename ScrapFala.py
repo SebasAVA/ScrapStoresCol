@@ -14,10 +14,10 @@ app = Flask(__name__)
 def hello_world():
     runBot()
     return 'Domo Arigato Mr Roboto'
-    
+"""
 @app.route('/addProduct',methods=['POST'])
 def testFun():
     content = request.get_json(silent=True)
     print(content)
     return 'Test'
-
+"""
