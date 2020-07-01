@@ -4,6 +4,11 @@ Created on Mon Jun 29 13:51:29 2020
 
 @author: User
 """
+import requests
+import re
+from bs4 import BeautifulSoup
+from firebase import firebase
+import time
 
 
 
@@ -14,11 +19,7 @@ def concatenate_list_data(list):
     return result
 
 def runBot():
-    import requests
-    import re
-    from bs4 import BeautifulSoup
-    from firebase import firebase
-    import time
+
 
     fire = firebase.FirebaseApplication('https://pika-4af18.firebaseio.com/', None)
     IdsFala = fire.get('/store/falabella/', None)
