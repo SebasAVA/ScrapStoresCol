@@ -9,8 +9,9 @@ import re
 from bs4 import BeautifulSoup
 from firebase import firebase
 import time
-
-
+import firebase_admin
+from firebase_admin import credentials
+from firebase_admin import db
 
 def concatenate_list_data(list):
     result= ''
@@ -19,12 +20,14 @@ def concatenate_list_data(list):
     return result
 
 def runBot():
-
-
+    cred = credentials.Certificate("/pika-4af18-firebase-adminsdk-dmk54-ad885bb281.json")
+    firebase_admin.initialize_app(cred, {
+    'databaseURL': 'https://pika-4af18.firebaseio.com/'
+    })
     fire = firebase.FirebaseApplication('https://pika-4af18.firebaseio.com/', None)
-    IdsFala = fire.get('/store/falabella/', None)
+    IdsFala = fire.get('/store/falabella-co/', None)
     
-    IdsInfo = fire.get('/prices/falabella/', None)
+    IdsInfo = fire.get('/prices/falabella-co/', None)
     
                 
     for key in IdsFala: 
@@ -45,18 +48,22 @@ def runBot():
                       'url': URL,
                       'productId':key
                       }
-            fire.put('/prices/falabella/',key,data)
-            print(key) 
+            ref = db.reference('/prices/falabella-co')
+            createNewPro = ref.child(key)
+            createNewPro.set(data)
+            #fire.put('/prices/falabella-co/',key,data)
+            #print(key) 
         
     
     for ProductId in IdsFala:
+        #start_time = time.time()
         URL = 'https://www.falabella.com.co/falabella-co/product/'+ProductId
         page = requests.get(URL)
         soup = BeautifulSoup(page.content, 'html.parser')
         try:
             results = soup.find(id='testId-pod-prices-'+ProductId)
             ProductName = soup.find('div', class_='jsx-3686231685 product-name fa--product-name')
-            print(results.prettify())
+            #print(results.prettify())
         except:
             print("No hay precio del producto")
 
@@ -67,7 +74,7 @@ def runBot():
             print("No tiene nombre el producto")
         
         try:
-            price_normal= results.find('span',class_='copy13 primary high jsx-185326735 normal')
+            price_normal= results.find('span',class_='copy14 primary jsx-2612542277 normal')
         except:
             print("No hay precio del producto")
         try:
@@ -78,7 +85,7 @@ def runBot():
             print("No hay precio del producto")
             
         try:    
-            price_disc = results.find('span',class_='copy1 primary jsx-185326735 normal')
+            price_disc = results.find('span',class_='copy13 primary high jsx-2612542277 normal')
         except:
             print("No tiene precio de descuento")
         try:
@@ -88,7 +95,7 @@ def runBot():
         except:
             print("No tiene precio de descuento")
             
-        disc = soup.find('div', class_='jsx-1231170568 pod-badges pod-badges-PDP')
+        disc = soup.find('div', class_='jsx-4284799404 pod-badges pod-badges-PDP')
         try:
             disct = disc.text.strip()
             dis = (re.findall('\d+', disct ))
@@ -96,9 +103,16 @@ def runBot():
         except:
             print("No tiene valor de de descuento")
         timeStamp = int(time.time())
-        data =  { 'date': timeStamp,
-                  'actualPrice': price_Normal,
-                  'noDiscPrice':price_disc,
-                  'discount': disct
-                      }
-        fire.put('/prices/falabella/'+ProductId+'/dates/',timeStamp,data)
+        updatePrice = ref.child(ProductId+"/dates")
+        updatePrice.update({
+                timeStamp : {
+                    "actualPrice" : price_Normal,
+                    "date" : timeStamp,
+                    "discount" : disct,
+                    "noDiscPrice" : price_disc
+                    }
+                }
+            )
+        #fire.put('/prices/falabella-co/'+ProductId+'/dates/',timeStamp,data)
+        #print("--- %s seconds ---" % (time.time() - start_time))
+
